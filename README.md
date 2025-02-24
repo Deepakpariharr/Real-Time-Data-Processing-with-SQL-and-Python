@@ -6,7 +6,7 @@ This project implements a real-time data processing system designed to analyze t
 
 ## Features
 
-- **ETL Pipeline**: Efficiently processes 100K+ orders, 3.7M transactions, and 330K+ customer records.
+- **ETL Pipeline**:Processes 98K+ orders with automated data validation and quality checks.
 - **Optimized SQL Queries**: Boosts query performance by 60% for real-time analytics.
 - **Data Validation & Quality Checks**: Ensures 99.9% accuracy, reduces null values by 90%, and eliminates 100% of duplicates.
 - **Analytics & Visualizations**: Delivers insights into sales trends, product performance, and seller metrics.
@@ -61,19 +61,26 @@ The system generates insights on:
 ## Key Insights from Analysis
 
 ### Sales Trends
-- Orders peaked at 6,798 in April 2018, generating $973K in revenue.  
+- Orders peaked at 6,798 in April 2018, generating $973K in revenue.
+- Average order value range: $132-144
 - Revenue dropped by 12.4% in June, suggesting seasonal variations.  
-- Average order value: $143 in April, declining to $132 in August.  
+- Average order value: $143 in April, declining to $132 in August.
+- Consistent freight costs averaging $155K monthly  
 
 ### Top Categories by Revenue
 - **Health & Beauty**: $1.26M revenue, 4.14 avg rating.  
 - **Watches & Gifts**: $1.2M revenue, 4.02 avg rating.  
-- **Bed & Bath**: $1.05M revenue, lowest rating at 3.89.  
+- **Bed & Bath**: $1.05M revenue, lowest rating at 3.90.
+- **Sports & Leisure**: $994K revenue, 4.11/5 rating
+- **Computers & Accessories**: $920K revenue, 3.93/5 rating
 
 ### Seller Performance
-- 1,271 sellers analyzed, average revenue per seller: $9,732.  
+- 1,271 sellers analyzed,
+- Average revenue per seller: $9,732.
+- Median revenue: $229,473  
 - Top sellers: Up to $229K revenue, selling 399+ unique products.  
-- Average shipping time: 79 hours, with a maximum of 641 hours.  
+- Average shipping time: 79.3 hours, with a maximum of 641 hours.
+- Average rating: 4.07/5
 
 ### Data Quality Summary
 - 99%+ clean data across customer, seller, and order datasets.  
@@ -81,7 +88,7 @@ The system generates insights on:
 - Products dataset: 1.85% missing category names, dimensions, or descriptions.  
 
 ### Performance Optimization
-- Created 5 indexes on key fields (`customer_id`, `order_id`, `seller_id`), improving query speeds by 60%.  
+- Created 5 indexes on key fields (`customer_id`, `order_id`, `seller_id`, `product_id`, `purchase_timestamp` ), improving query speeds by 60%.  
 - Batch processing enhanced data ingestion efficiency by 45%.  
 
 ## Future Enhancements
@@ -96,4 +103,4 @@ Feel free to fork the repository, submit pull requests, or report issues via the
 This project is licensed under the [MIT License](LICENSE.md).
 
 ---
-**Built with**: Python, PostgreSQL, and Data Engineering Best Practices.
+**Built with**: Python 3.8+, PostgreSQL 12+, SQLAlchemy, Pandas, and Matplotlib
