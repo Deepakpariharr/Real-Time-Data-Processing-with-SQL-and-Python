@@ -27,7 +27,7 @@ olist_analysis/
 
 ### Clone the Repository
 
-git clone https://github.com/yourusername/olist_data_processing.git  
+git clone https://github.com/Deepakpariharr/Real-Time-Data-Processing-with-SQL-and-Python.git
 cd olist_data_processing  
 
 ### Set Up the Environment
