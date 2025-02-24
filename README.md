@@ -93,7 +93,7 @@ The system generates insights on:
 Feel free to fork the repository, submit pull requests, or report issues via the GitHub Issues page.
 
 ## License
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE.MD).
 
 ---
 **Built with**: Python, PostgreSQL, and Data Engineering Best Practices.
