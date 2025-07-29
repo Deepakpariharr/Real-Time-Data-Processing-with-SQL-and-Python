@@ -10,7 +10,6 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 import json
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -18,13 +17,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class DataQualityChecker:
-    """Handles data quality validation and reporting."""
     
     def __init__(self, engine):
         self.engine = engine
         
     def check_nulls(self, table_name: str) -> Dict[str, float]:
-        """Calculate null percentage for each column in a table."""
         query = f"""
             SELECT 
                 column_name,
@@ -41,7 +38,6 @@ class DataQualityChecker:
             return {}
             
     def check_duplicates(self, table_name: str, key_columns: List[str]) -> int:
-        """Check for duplicate records based on key columns."""
         key_cols = ", ".join(key_columns)
         query = f"""
             SELECT COUNT(*) - COUNT(DISTINCT ({key_cols})) as duplicate_count
@@ -54,7 +50,6 @@ class DataQualityChecker:
             return 0
             
     def validate_date_ranges(self, table_name: str, date_column: str) -> Dict[str, datetime]:
-        """Validate date ranges in a given column."""
         query = f"""
             SELECT 
                 MIN({date_column}) as min_date,
@@ -68,13 +63,11 @@ class DataQualityChecker:
             return {}
 
 class OlistAnalytics:
-    """Handles advanced analytics and visualizations for Olist data."""
     
     def __init__(self, engine):
         self.engine = engine
         
     def get_time_based_metrics(self) -> pd.DataFrame:
-        """Calculate monthly sales metrics."""
         query = """
             WITH monthly_metrics AS (
                 SELECT 
@@ -105,9 +98,7 @@ class OlistAnalytics:
         return pd.read_sql(query, self.engine)
         
     def get_product_category_analysis(self) -> pd.DataFrame:
-        """Analyze performance by product category."""
         try:
-            # First verify the table exists
             table_check_query = """
                 SELECT EXISTS (
                     SELECT FROM information_schema.tables 
@@ -158,7 +149,6 @@ class OlistAnalytics:
             return pd.DataFrame()  # Return empty DataFrame on failure
         
     def get_seller_performance(self) -> pd.DataFrame:
-        """Analyze seller performance metrics."""
         query = """
             WITH seller_metrics AS (
                 SELECT 
@@ -185,10 +175,8 @@ class OlistAnalytics:
         return pd.read_sql(query, self.engine)
         
     def create_visualizations(self, output_dir: str = 'reports'):
-        """Generate and save visualization plots."""
         os.makedirs(output_dir, exist_ok=True)
         
-        # Time-based metrics visualization
         time_metrics = self.get_time_based_metrics()
         plt.figure(figsize=(15, 8))
         plt.plot(time_metrics['month'], time_metrics['revenue'], marker='o')
@@ -198,7 +186,6 @@ class OlistAnalytics:
         plt.savefig(os.path.join(output_dir, 'revenue_trend.png'))
         plt.close()
         
-        # Category performance visualization
         cat_metrics = self.get_product_category_analysis()
         plt.figure(figsize=(15, 8))
         sns.scatterplot(data=cat_metrics.head(20), 
@@ -211,7 +198,6 @@ class OlistAnalytics:
         plt.savefig(os.path.join(output_dir, 'category_performance.png'))
         plt.close()
         
-        # Seller performance distribution
         seller_metrics = self.get_seller_performance()
         plt.figure(figsize=(12, 6))
         sns.boxplot(data=seller_metrics, x='revenue_quintile', y='avg_rating')
@@ -221,29 +207,23 @@ class OlistAnalytics:
         plt.close()
 
 class ETLPipeline:
-    """Handles data loading and transformation."""
     
     def __init__(self, engine):
         self.engine = engine
         self.data_quality = DataQualityChecker(engine)
         
     def load_csv_to_db(self, file_path: str, table_name: str) -> None:
-        """Load CSV file into database with error handling and logging."""
         try:
-            # Check if file exists
             if not os.path.exists(file_path):
                 logger.error(f"File not found: {file_path}")
                 return
             
-            # Load and clean data
             df = pd.read_csv(file_path)
             
-            # Basic data cleaning
             for column in df.columns:
                 if df[column].dtype == 'object':
                     df[column] = df[column].fillna('')  # Fill NaN in text columns with empty string
                 
-            # Convert to database-friendly types
             date_columns = [col for col in df.columns if 'date' in col.lower() or 'timestamp' in col.lower()]
             for date_col in date_columns:
                 try:
@@ -251,11 +231,9 @@ class ETLPipeline:
                 except Exception as e:
                     logger.warning(f"Could not convert {date_col} to datetime: {str(e)}")
             
-            # Load to database
             df.to_sql(table_name, self.engine, if_exists='replace', index=False)
             logger.info(f"Successfully loaded {file_path} into {table_name}")
             
-            # Perform data quality checks
             null_checks = self.data_quality.check_nulls(table_name)
             if null_checks:
                 logger.info(f"Null check results for {table_name}: {json.dumps(null_checks, indent=2)}")
@@ -269,7 +247,6 @@ class ETLPipeline:
             raise
             
     def create_indexes(self) -> None:
-        """Create necessary indexes for performance optimization."""
         index_definitions = [
             "CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id)",
             "CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id)",
@@ -288,17 +265,14 @@ class ETLPipeline:
                 logger.error(f"Error creating index: {str(e)}")
 
 def main():
-    """Main execution function."""
     try:
         load_dotenv()
         db_url = os.getenv("DATABASE_URL")
         engine = create_engine(db_url)
         
-        # Initialize pipeline and analytics
         etl = ETLPipeline(engine)
         analytics = OlistAnalytics(engine)
         
-        # Load data
         data_files = {
             'customers': 'customers_dataset.csv',
             'orders': 'orders_dataset.csv',
@@ -313,13 +287,10 @@ def main():
         for table, file in data_files.items():
             etl.load_csv_to_db(os.path.join('data', file), table)
             
-        # Create indexes for performance
         etl.create_indexes()
         
-        # Generate analytics and visualizations
         analytics.create_visualizations()
         
-        # Print summary metrics
         time_metrics = analytics.get_time_based_metrics()
         print("\nTime-based Metrics Summary:")
         print(time_metrics.tail().to_string())
