@@ -1,4 +1,4 @@
-# Realtime Integration with Python & SQL
+# Realtime Integration with Python and SQL
 
 ## Overview
 
